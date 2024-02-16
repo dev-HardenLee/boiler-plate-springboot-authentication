@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 @Table(name = "USERS")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = {"role"})
 public class User implements UserDetails {
 
 
@@ -25,22 +26,16 @@ public class User implements UserDetails {
 
     private String password;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role")
     private Role role;
 
+    @Builder
     public User(Long id, String email, String password, Role role) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.role = role;
-    }
-
-    @Builder
-    public User(Long id, String email, String password) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
     }
 
     @Override
