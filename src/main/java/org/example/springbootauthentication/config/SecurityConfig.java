@@ -2,6 +2,7 @@ package org.example.springbootauthentication.config;
 
 import lombok.RequiredArgsConstructor;
 import org.example.springbootauthentication.filter.security.LoginProcessingFilter;
+import org.example.springbootauthentication.handler.CustomAuthenticationFailureHandler;
 import org.example.springbootauthentication.handler.CustomAuthenticationSuccessHandler;
 import org.example.springbootauthentication.jwt.JwtProvider;
 import org.example.springbootauthentication.provider.CustomAuthenticationProvider;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -77,6 +79,8 @@ public class SecurityConfig {
 
         loginProcessingFilter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
         loginProcessingFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler());
+        loginProcessingFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler());
+//        loginProcessingFilter.setAuthenticationDetailsSource(); // 인증시에 요청자의 추가 정보를 담을 때 사용함.
 
         return loginProcessingFilter;
     }// loginProcessingFilter
@@ -94,5 +98,10 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return new CustomAuthenticationSuccessHandler(jwtProvider);
+    }
+
+    @Bean
+    public AuthenticationFailureHandler customAuthenticationFailureHandler() {
+        return new CustomAuthenticationFailureHandler();
     }
 }// SecurityConfig

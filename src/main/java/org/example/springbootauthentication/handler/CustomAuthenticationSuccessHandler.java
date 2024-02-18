@@ -32,8 +32,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(accessToken, refreshToken);
 
-        response.setStatus(HttpStatus.OK.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
+        response.setStatus(HttpStatus.CREATED.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         objectMapper.writeValue(response.getWriter(), tokenResponseDTO);
     }// onAuthenticationSuccess

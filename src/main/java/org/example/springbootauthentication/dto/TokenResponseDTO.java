@@ -1,5 +1,8 @@
 package org.example.springbootauthentication.dto;
 
+import lombok.Data;
+
+@Data
 public class TokenResponseDTO {
 
     private String accessToken;
