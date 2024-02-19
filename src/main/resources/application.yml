@@ -16,6 +16,11 @@ spring:
     url: jdbc:h2:mem:testdb
     username: sa
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 jwt:
   issuer: harden.lee@companywe.co.kr
   secretKey: companywe!@#
