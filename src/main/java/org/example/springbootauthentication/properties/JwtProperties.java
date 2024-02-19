@@ -1,4 +1,4 @@
-package org.example.springbootauthentication.jwt;
+package org.example.springbootauthentication.properties;
 
 import lombok.Getter;
 import lombok.Setter;

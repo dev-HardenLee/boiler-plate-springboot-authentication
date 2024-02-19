@@ -6,9 +6,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootauthentication.domain.RefreshToken;
-import org.example.springbootauthentication.domain.User;
 import org.example.springbootauthentication.dto.TokenResponseDTO;
-import org.example.springbootauthentication.jwt.JwtProvider;
+import org.example.springbootauthentication.dto.UserDTO;
+import org.example.springbootauthentication.provider.JwtProvider;
 import org.example.springbootauthentication.repository.RefreshTokenRedisRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -36,19 +36,19 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        User user = (User) authentication.getPrincipal();
+        UserDTO userDTO = (UserDTO) authentication.getPrincipal();
 
-        String accessToken  = jwtProvider.generateToken(Duration.ofSeconds(accessTokenExpireSeconds ), user);
-        String refreshToken = jwtProvider.generateToken(Duration.ofSeconds(refreshTokenExpireSeconds), user);
+        String accessToken  = jwtProvider.generateToken(Duration.ofSeconds(accessTokenExpireSeconds ), userDTO);
+        String refreshToken = jwtProvider.generateToken(Duration.ofSeconds(refreshTokenExpireSeconds), userDTO);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(accessToken, refreshToken);
 
-        RefreshToken redisRefreshToken = RefreshToken.builder().id(user.getId()).refreshToken(refreshToken).expiration(refreshTokenExpireSeconds).build();
+        RefreshToken redisRefreshToken = RefreshToken.builder().id(userDTO.getId()).refreshToken(refreshToken).expiration(refreshTokenExpireSeconds).build();
 
         refreshTokenRedisRepository.save(redisRefreshToken);
 
         response.setStatus(HttpStatus.CREATED.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE + ";charset=utf-8");
 
         objectMapper.writeValue(response.getWriter(), tokenResponseDTO);
     }// onAuthenticationSuccess

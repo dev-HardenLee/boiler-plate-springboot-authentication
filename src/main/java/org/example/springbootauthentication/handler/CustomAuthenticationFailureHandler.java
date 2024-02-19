@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
+import org.example.springbootauthentication.dto.ResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,7 +21,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        FailMessageResponseDTO responseDTO = new FailMessageResponseDTO();
+        ResponseDTO responseDTO = new ResponseDTO();
 
         if(exception instanceof UsernameNotFoundException e) {
             responseDTO.setMessage("해당 계정을 찾을 수가 없습니다.");
@@ -31,7 +32,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         }// if-else
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE + ";charset=utf-8");
 
         objectMapper.writeValue(response.getWriter(), responseDTO);
     }// onAuthenticationFailure

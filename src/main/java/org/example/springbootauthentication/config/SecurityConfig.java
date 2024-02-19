@@ -1,12 +1,17 @@
 package org.example.springbootauthentication.config;
 
 import lombok.RequiredArgsConstructor;
+import org.example.springbootauthentication.filter.security.JwtAuthenticationFilter;
+import org.example.springbootauthentication.filter.security.JwtRefreshTokenFilter;
 import org.example.springbootauthentication.filter.security.LoginProcessingFilter;
 import org.example.springbootauthentication.handler.CustomAuthenticationFailureHandler;
 import org.example.springbootauthentication.handler.CustomAuthenticationSuccessHandler;
-import org.example.springbootauthentication.jwt.JwtProvider;
+import org.example.springbootauthentication.handler.JwtAuthenticationFailureHandler;
+import org.example.springbootauthentication.provider.JwtProvider;
 import org.example.springbootauthentication.provider.CustomAuthenticationProvider;
 import org.example.springbootauthentication.repository.RefreshTokenRedisRepository;
+import org.example.springbootauthentication.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,6 +29,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
@@ -34,13 +40,21 @@ public class SecurityConfig {
 
     private static final String loginUrl = "/api/login";
 
+    private static final String refreshTokenUrl = "/api/refresh-token";
+
     private final AuthenticationConfiguration authenticationConfiguration;
 
     private final UserDetailsService customUserDetailsService;
 
     private final JwtProvider jwtProvider;
 
+    private final UserRepository userRepository;
+
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
+
+    private final JwtAuthenticationFailureHandler jwtAuthenticationFailureHandler;
+
+    private final ModelMapper modelMapper;
 
     @Bean
     public WebSecurityCustomizer configure() {
@@ -64,12 +78,16 @@ public class SecurityConfig {
         http.userDetailsService(customUserDetailsService);
 
         http.addFilterBefore(loginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtRefreshTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-                        .anyRequest().hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET , "/api/home" ).authenticated()
+                        .requestMatchers(HttpMethod.GET , "/api/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET , "/api/user" ).hasRole("USER")
+                        .anyRequest().permitAll()
                 );
 
 
@@ -87,6 +105,16 @@ public class SecurityConfig {
 
         return loginProcessingFilter;
     }// loginProcessingFilter
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(userRepository, jwtProvider, jwtAuthenticationFailureHandler, modelMapper);
+    }
+
+    @Bean
+    public JwtRefreshTokenFilter jwtRefreshTokenFilter() {
+        return new JwtRefreshTokenFilter(new AntPathRequestMatcher(refreshTokenUrl, HttpMethod.POST.name()), jwtProvider, refreshTokenRedisRepository, jwtAuthenticationFailureHandler, userRepository, modelMapper);
+    }
 
     @Bean
     public PasswordEncoder bCryptPasswordEncoder() {

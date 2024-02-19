@@ -3,9 +3,11 @@ package org.example.springbootauthentication.repository;
 import lombok.extern.log4j.Log4j2;
 import org.example.springbootauthentication.domain.RefreshToken;
 import org.example.springbootauthentication.domain.User;
-import org.example.springbootauthentication.jwt.JwtProvider;
+import org.example.springbootauthentication.dto.UserDTO;
+import org.example.springbootauthentication.provider.JwtProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -24,6 +26,9 @@ class RefreshTokenRedisRepositoryTest {
     private JwtProvider jwtProvider;
 
     @Autowired
+    private ModelMapper modelMapper;
+
+    @Autowired
     private RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @BeforeEach
@@ -36,7 +41,9 @@ class RefreshTokenRedisRepositoryTest {
         // given
         User user = userRepository.findById(1L).get();
 
-        String token = jwtProvider.generateToken(Duration.ofSeconds(10), user);
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+
+        String token = jwtProvider.generateToken(Duration.ofSeconds(10), userDTO);
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .id(1L)
