@@ -1,7 +1,12 @@
 package org.example.springbootauthentication.filter.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
+import org.example.springbootauthentication.domain.RefreshToken;
+import org.example.springbootauthentication.domain.User;
 import org.example.springbootauthentication.dto.LoginRequestDTO;
+import org.example.springbootauthentication.repository.RefreshTokenRedisRepository;
+import org.example.springbootauthentication.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +19,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -22,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Log4j2
 class LoginProcessingFilterTest {
 
     @Autowired
@@ -32,6 +39,12 @@ class LoginProcessingFilterTest {
     @Autowired
     private WebApplicationContext context;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RefreshTokenRedisRepository refreshTokenRedisRepository;
+
     @BeforeEach
     void beforeEach() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
@@ -39,10 +52,12 @@ class LoginProcessingFilterTest {
                 .build();
 
         objectMapper = new ObjectMapper();
+
+        refreshTokenRedisRepository.deleteAll();
     }// beforeEach
 
     @Test
-    @DisplayName("/api/login : 인증 성공 후 토큰을 응답 데이터으로 준다.")
+    @DisplayName("/api/login : 인증 성공 후 RefreshToken을 Redis에 저장하고 AccessToken과 RefreshToken을 응답 데이터으로 준다.")
     void login() throws Exception {
         // given
         String url = "/api/login";
@@ -65,6 +80,12 @@ class LoginProcessingFilterTest {
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
                 .andExpect(jsonPath("$.refreshToken").isNotEmpty());
 
+        User         user         = userRepository.findByEmail(loginRequestDTO.getUsername()).get();
+        RefreshToken refreshToken = refreshTokenRedisRepository.findById(user.getId()).orElse(null);
+
+        assertThat(refreshToken).isNotNull();
+
+        log.info(refreshToken);
     }// login
 
     @Test

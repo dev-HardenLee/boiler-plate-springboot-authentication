@@ -6,6 +6,7 @@ import org.example.springbootauthentication.handler.CustomAuthenticationFailureH
 import org.example.springbootauthentication.handler.CustomAuthenticationSuccessHandler;
 import org.example.springbootauthentication.jwt.JwtProvider;
 import org.example.springbootauthentication.provider.CustomAuthenticationProvider;
+import org.example.springbootauthentication.repository.RefreshTokenRedisRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -38,6 +39,8 @@ public class SecurityConfig {
     private final UserDetailsService customUserDetailsService;
 
     private final JwtProvider jwtProvider;
+
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @Bean
     public WebSecurityCustomizer configure() {
@@ -97,7 +100,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-        return new CustomAuthenticationSuccessHandler(jwtProvider);
+        return new CustomAuthenticationSuccessHandler(jwtProvider, refreshTokenRedisRepository);
     }
 
     @Bean

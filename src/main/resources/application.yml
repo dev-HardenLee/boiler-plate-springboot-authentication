@@ -24,6 +24,8 @@ spring:
 jwt:
   issuer: harden.lee@companywe.co.kr
   secretKey: companywe!@#
+  accessTokenExpireSeconds: 1800
+  refreshTokenExpireSeconds: 2592000
 
 logging:
   level:
