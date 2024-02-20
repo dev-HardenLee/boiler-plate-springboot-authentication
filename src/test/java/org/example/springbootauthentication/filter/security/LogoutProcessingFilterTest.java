@@ -71,6 +71,7 @@ class LogoutProcessingFilterTest {
         objectMapper = new ObjectMapper();
 
         refreshTokenRedisRepository.deleteAll();
+        logoutTokenRedisRepository.deleteAll();
     }// beforeEach
 
     @Test
@@ -80,7 +81,7 @@ class LogoutProcessingFilterTest {
         User    user    = userRepository.findById(1L).orElse(null);
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 
-        String accessToken  = jwtProvider.generateToken(Duration.ofSeconds(10L), userDTO);
+        String accessToken  = jwtProvider.generateToken(Duration.ofSeconds(1800L), userDTO);
         String refreshToken = jwtProvider.generateToken(Duration.ofSeconds(60L), userDTO);
 
         RefreshToken redisRefreshToken = RefreshToken.builder().id(user.getId()).refreshToken(refreshToken).expiration(60L).build();
@@ -109,7 +110,9 @@ class LogoutProcessingFilterTest {
         Long restTime1 = (jwtProvider.getExpiration(accessToken).getTime() - (new Date().getTime())) / 1000;
         Long restTime2 = byId2.get().getExpiration();
 
-        assertThat(Math.abs(restTime1 - restTime2)).isLessThan(5L);
+        log.info(restTime1 + " / " + restTime2);
+
+        assertThat(Math.abs(restTime1 - restTime2)).isLessThan(2L);
     }// logout
 
 }// LogoutProcessingFilterTest

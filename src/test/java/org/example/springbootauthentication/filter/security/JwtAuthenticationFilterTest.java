@@ -61,6 +61,8 @@ class JwtAuthenticationFilterTest {
                 .build();
 
         objectMapper = new ObjectMapper();
+
+        logoutTokenRedisRepository.deleteAll();
     }// beforeEach
 
     @Test
