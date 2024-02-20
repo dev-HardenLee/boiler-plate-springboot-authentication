@@ -89,7 +89,7 @@ class UserControllerTest {
     }// permitAdminTest
 
     @Test
-    @DisplayName("/api/user : ROLE_USER 포함 상위 권한을 가진 사용자의 접근이 허용된다.")
+    @DisplayName("/api/user : ROLE_ANONYMOUS 권한을 가진 유저의 접근이 거부된다.")
     @WithAnonymousUser
     void forbidAnonymousTest() throws Exception {
         // given
