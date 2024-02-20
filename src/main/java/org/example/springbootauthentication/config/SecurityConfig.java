@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.example.springbootauthentication.filter.security.JwtAuthenticationFilter;
 import org.example.springbootauthentication.filter.security.JwtRefreshTokenFilter;
 import org.example.springbootauthentication.filter.security.LoginProcessingFilter;
+import org.example.springbootauthentication.filter.security.LogoutProcessingFilter;
 import org.example.springbootauthentication.handler.CustomAuthenticationFailureHandler;
 import org.example.springbootauthentication.handler.CustomAuthenticationSuccessHandler;
 import org.example.springbootauthentication.handler.JwtAuthenticationFailureHandler;
 import org.example.springbootauthentication.provider.JwtProvider;
 import org.example.springbootauthentication.provider.CustomAuthenticationProvider;
+import org.example.springbootauthentication.repository.LogoutTokenRedisRepository;
 import org.example.springbootauthentication.repository.RefreshTokenRedisRepository;
 import org.example.springbootauthentication.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -40,6 +42,8 @@ public class SecurityConfig {
 
     private static final String loginUrl = "/api/login";
 
+    private static final String logoutUrl = "/api/logout";
+
     private static final String refreshTokenUrl = "/api/refresh-token";
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -51,6 +55,8 @@ public class SecurityConfig {
     private final UserRepository userRepository;
 
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
+
+    private final LogoutTokenRedisRepository logoutTokenRedisRepository;
 
     private final JwtAuthenticationFailureHandler jwtAuthenticationFailureHandler;
 
@@ -77,13 +83,13 @@ public class SecurityConfig {
 
         http.userDetailsService(customUserDetailsService);
 
-        http.addFilterBefore(loginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtRefreshTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(loginProcessingFilter()  , UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(logoutProcessingFilter() , UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtRefreshTokenFilter()  , UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
                         .requestMatchers(HttpMethod.GET , "/api/home" ).authenticated()
                         .requestMatchers(HttpMethod.GET , "/api/admin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET , "/api/user" ).hasRole("USER")
@@ -107,14 +113,20 @@ public class SecurityConfig {
     }// loginProcessingFilter
 
     @Bean
+    public LogoutProcessingFilter logoutProcessingFilter() {
+        return new LogoutProcessingFilter(new AntPathRequestMatcher(logoutUrl, HttpMethod.GET.name()), jwtProvider, refreshTokenRedisRepository, logoutTokenRedisRepository, jwtAuthenticationFailureHandler);
+    }// logoutProcessingFilter
+
+    @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(userRepository, jwtProvider, jwtAuthenticationFailureHandler, modelMapper);
+        return new JwtAuthenticationFilter(userRepository, logoutTokenRedisRepository, jwtProvider, jwtAuthenticationFailureHandler, modelMapper);
     }
 
     @Bean
     public JwtRefreshTokenFilter jwtRefreshTokenFilter() {
         return new JwtRefreshTokenFilter(new AntPathRequestMatcher(refreshTokenUrl, HttpMethod.POST.name()), jwtProvider, refreshTokenRedisRepository, jwtAuthenticationFailureHandler, userRepository, modelMapper);
     }
+
 
     @Bean
     public PasswordEncoder bCryptPasswordEncoder() {

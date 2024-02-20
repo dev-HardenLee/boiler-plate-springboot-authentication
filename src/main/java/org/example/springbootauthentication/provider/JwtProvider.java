@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.Date;
 
+import static org.example.springbootauthentication.filter.security.JwtAuthenticationFilter.TOKEN_PREFIX;
+
 @RequiredArgsConstructor
 @Component
 public class JwtProvider {
@@ -61,6 +63,22 @@ public class JwtProvider {
 
         return claims.get(PRIVATE_CLAIM, Long.class);
     }// getAuthentication
+
+    public Date getExpiration(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtProperties.getSecretKey())
+                .parseClaimsJws(token).getBody();
+
+        return claims.getExpiration();
+    }
+
+    public static String getAccessToken(String headerAuthorization) {
+        if(headerAuthorization != null && headerAuthorization.startsWith(TOKEN_PREFIX)) {
+            return headerAuthorization.substring(TOKEN_PREFIX.length());
+        }// if
+
+        return null;
+    }// getAccessToken
 
 }// JwtProvider
 

@@ -10,6 +10,7 @@ import org.example.springbootauthentication.domain.User;
 import org.example.springbootauthentication.dto.UserDTO;
 import org.example.springbootauthentication.handler.JwtAuthenticationFailureHandler;
 import org.example.springbootauthentication.provider.JwtProvider;
+import org.example.springbootauthentication.repository.LogoutTokenRedisRepository;
 import org.example.springbootauthentication.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,10 +22,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+import static org.example.springbootauthentication.provider.JwtProvider.getAccessToken;
+
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserRepository userRepository;
+
+    private final LogoutTokenRedisRepository logoutTokenRedisRepository;
 
     private final JwtProvider jwtProvider;
 
@@ -32,9 +37,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final ModelMapper modelMapper;
 
-    private final static String HEADER_AUTHORIZATION = "Authorization";
+    public final static String HEADER_AUTHORIZATION = "Authorization";
 
-    private final static String TOKEN_PREFIX = "Bearer ";
+    public final static String TOKEN_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -43,6 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(accessToken != null) {
             try {
+                if(logoutTokenRedisRepository.findById(accessToken).isPresent()) throw new Exception("로그아웃 처리된 토큰입니다.");
+
                 jwtProvider.validToken(accessToken);
 
                 Long userId = jwtProvider.getPrivateClaim(accessToken);
@@ -67,14 +74,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }// doFilterInternal
-
-    private String getAccessToken(String headerAuthorization) {
-        if(headerAuthorization != null && headerAuthorization.startsWith(TOKEN_PREFIX)) {
-            return headerAuthorization.substring(TOKEN_PREFIX.length());
-        }// if
-
-        return null;
-    }// getAccessToken
 
 }// JwtAuthenticationFilter
 

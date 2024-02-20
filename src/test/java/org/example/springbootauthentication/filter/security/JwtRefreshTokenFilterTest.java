@@ -103,8 +103,8 @@ class JwtRefreshTokenFilterTest {
     }// refreshTokenTest
 
     @Test
-    @DisplayName("/api/refresh-token : refreshToken이 조회가 되지 않으면 인증에 실패한다.")
-    void refreshTokenNotExist() throws Exception {
+    @DisplayName("/api/refresh-token : 로그아웃되어 refreshToken이 조회가 되지 않으면 인증에 실패한다.")
+    void refreshTokenNotExist_BecauseOfLogout() throws Exception {
         // given
         User user = userRepository.findById(1L).orElse(null);
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
@@ -135,7 +135,7 @@ class JwtRefreshTokenFilterTest {
                 .andExpect(jsonPath("$.message").exists())
                 .andDo(print());
 
-    }// refreshTokenNotExist
+    }// refreshTokenNotExist_BecauseOfLogout
 
     @Test
     @DisplayName("/api/refresh-token : refreshToken이 저장된 값과 다르면 새로운 accessToken 발급에 실패한다.")

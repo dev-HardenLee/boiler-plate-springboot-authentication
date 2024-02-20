@@ -84,7 +84,7 @@ public class JwtRefreshTokenFilter extends OncePerRequestFilter {
 
         RefreshToken refreshToken = refreshTokenRedisRepository.findById(userId).orElse(null);
 
-        if(refreshToken == null) {
+        if(refreshToken == null) { // 로그아웃 되어 Redis에 RefreshToken이 없는 상황.
             jwtAuthenticationFailureHandler.failHandler(request, response, new Exception("Refresh Token이 존재하지 않습니다."));
 
             return;
