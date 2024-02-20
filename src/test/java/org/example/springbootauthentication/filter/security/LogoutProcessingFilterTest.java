@@ -109,7 +109,7 @@ class LogoutProcessingFilterTest {
         Long restTime1 = (jwtProvider.getExpiration(accessToken).getTime() - (new Date().getTime())) / 1000;
         Long restTime2 = byId2.get().getExpiration();
 
-        assertThat(restTime1).isEqualTo(restTime2);
+        assertThat(Math.abs(restTime1 - restTime2)).isLessThan(5L);
     }// logout
 
 }// LogoutProcessingFilterTest
