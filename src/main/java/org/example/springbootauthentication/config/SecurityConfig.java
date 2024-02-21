@@ -21,7 +21,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -117,15 +119,19 @@ public class SecurityConfig {
 
         AuthorizationManager<HttpServletRequest> authorizationManager = new RequestMatcherDelegatingAuthorizationManager.Builder()
                 .mappings(requestMatcherEntries -> {
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/home", HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("ANONYMOUS")));
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/admin", HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("ADMIN")));
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/user", HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("USER")));
+                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/admin"          , HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("ADMIN")));
+                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/user"           , HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("USER")));
+                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/it-team"        , HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("IT_TEAM_DEVELOPER", "IT_TEAM_PLANNER")));
+                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/management-team", HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("MANAGEMENT_TEAM_PERSONAL", "MANAGEMENT_TEAM_AFFAIRS")));
+                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/home"           , HttpMethod.GET.name()), (AuthorizationManager<RequestAuthorizationContext>)(a, o) -> new AuthorizationDecision(true)));
+                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/auth"           , HttpMethod.GET.name()), AuthenticatedAuthorizationManager.authenticated()));
+                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/anonymous"      , HttpMethod.GET.name()), AuthenticatedAuthorizationManager.anonymous()));
                 })
                 .mappings(requestMatcherEntries -> {
                     requestMatcherEntries.forEach(authorizationManagerRequestMatcherEntry -> {
-                        AuthorityAuthorizationManager<RequestAuthorizationContext> entry = (AuthorityAuthorizationManager)authorizationManagerRequestMatcherEntry.getEntry();
-
-                        entry.setRoleHierarchy(roleHierarchy());
+                        if(authorizationManagerRequestMatcherEntry.getEntry() instanceof AuthorityAuthorizationManager entry) {
+                            entry.setRoleHierarchy(roleHierarchy());
+                        }// if
                     });
                 })
                 .build();
@@ -139,7 +145,12 @@ public class SecurityConfig {
 
         roleHierarchy.setHierarchy("""
                 ROLE_ADMIN > ROLE_USER
-                ROLE_USER > ROLE_ANONYMOUS
+                ROLE_ADMIN > ROLE_IT_TEAM_CAPTAIN
+                ROLE_ADMIN > ROLE_MANAGEMENT_TEAM_CAPTAIN
+                ROLE_IT_TEAM_CAPTAIN > ROLE_IT_TEAM_DEVELOPER
+                ROLE_IT_TEAM_CAPTAIN > ROLE_IT_TEAM_PLANNER
+                ROLE_MANAGEMENT_TEAM_CAPTAIN > ROLE_MANAGEMENT_TEAM_PERSONAL
+                ROLE_MANAGEMENT_TEAM_CAPTAIN > ROLE_MANAGEMENT_TEAM_AFFAIRS
                 """);
 
         return roleHierarchy;
