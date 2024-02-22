@@ -24,9 +24,6 @@ INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (3, 3, 'ROLE_IT_TEAM_DEV
 INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (4, 3, 'ROLE_IT_TEAM_PLANNER');
 INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (5, 4, 'ROLE_MANAGEMENT_TEAM_PERSONAL');
 INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (6, 4, 'ROLE_MANAGEMENT_TEAM_AFFAIRS');
--- INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (7, 5, null);
--- INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (8, 6, null);
--- INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (9, 7, null);
 
 
 
