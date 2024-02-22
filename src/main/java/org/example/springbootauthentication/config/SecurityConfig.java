@@ -1,6 +1,5 @@
 package org.example.springbootauthentication.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootauthentication.filter.security.JwtAuthenticationFilter;
 import org.example.springbootauthentication.filter.security.JwtRefreshTokenFilter;
@@ -14,12 +13,10 @@ import org.example.springbootauthentication.provider.JwtProvider;
 import org.example.springbootauthentication.repository.LogoutTokenRedisRepository;
 import org.example.springbootauthentication.repository.RefreshTokenRedisRepository;
 import org.example.springbootauthentication.repository.UserRepository;
-import org.example.springbootauthentication.service.RoleService;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
@@ -63,8 +60,6 @@ public class SecurityConfig {
     private final UserDetailsService customUserDetailsService;
 
     private final JwtProvider jwtProvider;
-
-    private final RoleService roleService;
 
     private final UserRepository userRepository;
 
@@ -118,9 +113,9 @@ public class SecurityConfig {
     }// authorizationFilter
 
     @Bean
-    public AuthorizationManager<HttpServletRequest> authorizationManager() {
+    public RequestMatcherDelegatingAuthorizationManager authorizationManager() {
 
-        AuthorizationManager<HttpServletRequest> authorizationManager = new RequestMatcherDelegatingAuthorizationManager.Builder()
+        RequestMatcherDelegatingAuthorizationManager authorizationManager = new RequestMatcherDelegatingAuthorizationManager.Builder()
                 .mappings(requestMatcherEntries -> {
                     requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/admin"          , HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("ADMIN")));
                     requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/user"           , HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("USER")));
@@ -143,18 +138,8 @@ public class SecurityConfig {
     }// authorizationManager
 
     @Bean
-    public RoleHierarchy roleHierarchy() {
+    public RoleHierarchyImpl roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-
-        roleHierarchy.setHierarchy("""
-                ROLE_ADMIN > ROLE_USER
-                ROLE_ADMIN > ROLE_IT_TEAM_CAPTAIN
-                ROLE_ADMIN > ROLE_MANAGEMENT_TEAM_CAPTAIN
-                ROLE_IT_TEAM_CAPTAIN > ROLE_IT_TEAM_DEVELOPER
-                ROLE_IT_TEAM_CAPTAIN > ROLE_IT_TEAM_PLANNER
-                ROLE_MANAGEMENT_TEAM_CAPTAIN > ROLE_MANAGEMENT_TEAM_PERSONAL
-                ROLE_MANAGEMENT_TEAM_CAPTAIN > ROLE_MANAGEMENT_TEAM_AFFAIRS
-                """);
 
         return roleHierarchy;
     }// roleHierarchy
