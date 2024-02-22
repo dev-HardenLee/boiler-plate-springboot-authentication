@@ -14,6 +14,7 @@ import org.example.springbootauthentication.provider.JwtProvider;
 import org.example.springbootauthentication.repository.LogoutTokenRedisRepository;
 import org.example.springbootauthentication.repository.RefreshTokenRedisRepository;
 import org.example.springbootauthentication.repository.UserRepository;
+import org.example.springbootauthentication.service.RoleService;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,6 +63,8 @@ public class SecurityConfig {
     private final UserDetailsService customUserDetailsService;
 
     private final JwtProvider jwtProvider;
+
+    private final RoleService roleService;
 
     private final UserRepository userRepository;
 
@@ -155,8 +158,6 @@ public class SecurityConfig {
 
         return roleHierarchy;
     }// roleHierarchy
-
-
 
     @Bean
     public LoginProcessingFilter loginProcessingFilter() throws Exception {
