@@ -8,6 +8,7 @@ import org.example.springbootauthentication.filter.security.LogoutProcessingFilt
 import org.example.springbootauthentication.handler.CustomAuthenticationFailureHandler;
 import org.example.springbootauthentication.handler.CustomAuthenticationSuccessHandler;
 import org.example.springbootauthentication.handler.JwtAuthenticationFailureHandler;
+import org.example.springbootauthentication.manager.CustomRequestMatcherDelegatingAuthorizationManager;
 import org.example.springbootauthentication.provider.CustomAuthenticationProvider;
 import org.example.springbootauthentication.provider.JwtProvider;
 import org.example.springbootauthentication.repository.LogoutTokenRedisRepository;
@@ -19,10 +20,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
-import org.springframework.security.authorization.AuthorityAuthorizationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,13 +31,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
-import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcherEntry;
+
+import java.util.ArrayList;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
@@ -113,26 +109,8 @@ public class SecurityConfig {
     }// authorizationFilter
 
     @Bean
-    public RequestMatcherDelegatingAuthorizationManager authorizationManager() {
-
-        RequestMatcherDelegatingAuthorizationManager authorizationManager = new RequestMatcherDelegatingAuthorizationManager.Builder()
-                .mappings(requestMatcherEntries -> {
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/admin"          , HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("ADMIN")));
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/user"           , HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("USER")));
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/it-team"        , HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("IT_TEAM_DEVELOPER", "IT_TEAM_PLANNER")));
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/management-team", HttpMethod.GET.name()), AuthorityAuthorizationManager.hasAnyRole("MANAGEMENT_TEAM_PERSONAL", "MANAGEMENT_TEAM_AFFAIRS")));
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/home"           , HttpMethod.GET.name()), (AuthorizationManager<RequestAuthorizationContext>)(a, o) -> new AuthorizationDecision(true)));
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/auth"           , HttpMethod.GET.name()), AuthenticatedAuthorizationManager.authenticated()));
-                    requestMatcherEntries.add(new RequestMatcherEntry(new AntPathRequestMatcher("/api/anonymous"      , HttpMethod.GET.name()), AuthenticatedAuthorizationManager.anonymous()));
-                })
-                .mappings(requestMatcherEntries -> {
-                    requestMatcherEntries.forEach(authorizationManagerRequestMatcherEntry -> {
-                        if(authorizationManagerRequestMatcherEntry.getEntry() instanceof AuthorityAuthorizationManager entry) {
-                            entry.setRoleHierarchy(roleHierarchy());
-                        }// if
-                    });
-                })
-                .build();
+    public CustomRequestMatcherDelegatingAuthorizationManager authorizationManager() {
+        CustomRequestMatcherDelegatingAuthorizationManager authorizationManager = new CustomRequestMatcherDelegatingAuthorizationManager(new ArrayList<>());
 
         return authorizationManager;
     }// authorizationManager
