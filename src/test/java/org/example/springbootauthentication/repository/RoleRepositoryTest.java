@@ -9,6 +9,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.example.springbootauthentication.creator.RoleCreator.creat;
+
 @DataJpaTest
 @Log4j2
 class RoleRepositoryTest {
@@ -26,4 +29,37 @@ class RoleRepositoryTest {
         }
     }// findAllWithChildren
 
+    @Test
+    @DisplayName("addRole() : 권한 추가와 부모 권한과의 연관관계 매핑에 성공한다.")
+    void addRole() {
+        // given
+        Role roleAdmin = roleRepository.findById("ROLE_ADMIN").orElse(null);
+        Role roleTest  = creat("ROLE_TEST", "테스트 권한");
+
+        roleTest.makeRelationship(roleAdmin);
+
+        roleRepository.save(roleTest);
+
+        // when
+        Role findRole = roleRepository.findByIdWithParentAndChildren(roleTest.getRole()).orElse(null);
+
+        // then
+        assertThat(roleTest.getRole()).isEqualTo(findRole.getRole());
+        assertThat(findRole.getParentRole().getRole()).isEqualTo(roleAdmin.getRole());
+
+    }// addRole
+
 }// RoleRepositoryTest
+
+
+
+
+
+
+
+
+
+
+
+
+

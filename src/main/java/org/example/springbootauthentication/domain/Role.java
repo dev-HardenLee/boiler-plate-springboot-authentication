@@ -26,10 +26,14 @@ public class Role {
     private List<Role> childRole = new ArrayList<>();
 
     @Builder
-    public Role(String role, String text, Role parentRole) {
+    public Role(String role, String text) {
         this.role = role;
         this.text = text;
-        this.parentRole = parentRole;
     }
+
+    public void makeRelationship(Role parentRole) {
+        this.parentRole = parentRole;
+        this.parentRole.getChildRole().add(this);
+    }// makeRelationship
 
 }
