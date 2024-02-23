@@ -10,20 +10,26 @@ INSERT INTO ROLE(role, text, parent_role) VALUES ('ROLE_MANAGEMENT_TEAM_AFFAIRS'
 INSERT INTO USERS (id, email, password, role) VALUES (1, 'harden@naver.com', '$2a$10$zctnk7NWV62JrmeR1T7i1.C6xpzKTospDjfFoubTo6F7PiuHQ1k72', 'ROLE_ADMIN'); -- 1234
 INSERT INTO USERS (id, email, password, role) VALUES (2, 'test1234@naver.com', '$2a$10$zctnk7NWV62JrmeR1T7i1.C6xpzKTospDjfFoubTo6F7PiuHQ1k72', 'ROLE_USER'); -- 1234
 
-INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (1, '/api/admin'          , 'GET', 'hierarchy');
-INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (2, '/api/user'           , 'GET', 'hierarchy');
-INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (3, '/api/it-team'        , 'GET', 'hierarchy');
-INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (4, '/api/management-team', 'GET', 'hierarchy');
-INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (5, '/api/home'           , 'GET', 'all');
-INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (6, '/api/auth'           , 'GET', 'authenticated');
-INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (7, '/api/anonymous'      , 'GET', 'anonymous');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (1 , '/api/admin/**'       , 'GET'   , 'hierarchy');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (2 , '/api/admin/**'       , 'POST'  , 'hierarchy');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (3 , '/api/admin/**'       , 'PUT'   , 'hierarchy');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (4 , '/api/admin/**'       , 'DELETE', 'hierarchy');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (5 , '/api/user'           , 'GET'   , 'hierarchy');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (6 , '/api/it-team'        , 'GET'   , 'hierarchy');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (7 , '/api/management-team', 'GET'   , 'hierarchy');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (8 , '/api/home'           , 'GET'   , 'all');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (9 , '/api/auth'           , 'GET'   , 'authenticated');
+INSERT INTO RESOURCE(resource_id, url, method, permit_type) VALUES (10, '/api/anonymous'      , 'GET'   , 'anonymous');
 
 INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (1, 1, 'ROLE_ADMIN');
-INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (2, 2, 'ROLE_USER');
-INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (3, 3, 'ROLE_IT_TEAM_DEVELOPER');
-INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (4, 3, 'ROLE_IT_TEAM_PLANNER');
-INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (5, 4, 'ROLE_MANAGEMENT_TEAM_PERSONAL');
-INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (6, 4, 'ROLE_MANAGEMENT_TEAM_AFFAIRS');
+INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (2, 2, 'ROLE_ADMIN');
+INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (3, 3, 'ROLE_ADMIN');
+INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (4, 4, 'ROLE_ADMIN');
+INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (5, 5, 'ROLE_USER');
+INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (6, 6, 'ROLE_IT_TEAM_DEVELOPER');
+INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (7, 6, 'ROLE_IT_TEAM_PLANNER');
+INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (8, 7, 'ROLE_MANAGEMENT_TEAM_PERSONAL');
+INSERT INTO RESOURCE_ROLE(id, resource_id, role) VALUES (9, 7, 'ROLE_MANAGEMENT_TEAM_AFFAIRS');
 
 
 
