@@ -6,6 +6,7 @@ spring:
         ddl-auto: create
         format_sql: true
     defer-datasource-initialization: true
+    open-in-view: false
 
   h2:
     console:
@@ -32,4 +33,3 @@ logging:
     org:
       springframework:
         security: DEBUG
-
