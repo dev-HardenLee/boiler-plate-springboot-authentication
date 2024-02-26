@@ -22,7 +22,7 @@ class RoleRepositoryTest {
     @Test
     @DisplayName("findAll() : 전체 엔티티와 자식 및 부모 엔티티 조회에 성공한다.")
     void findAllWithChildren() {
-        List<Role> roles = roleRepository.findAllWithChildren();
+        List<Role> roles = roleRepository.findAllWithParentAndChildren();
 
         for (Role role : roles) {
             log.info(role + " / parent :  " + role.getParentRole() + " / children : " + role.getChildRole());

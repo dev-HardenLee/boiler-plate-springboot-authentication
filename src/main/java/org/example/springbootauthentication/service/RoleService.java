@@ -19,7 +19,7 @@ public class RoleService {
     private final RoleRepository roleRepository;
 
     public String roleHierarchyStringRepresentation() throws NullPointerException {
-        roleRepository.findAllWithChildren();
+        roleRepository.findAllWithParentAndChildren();
 
         Role roleAdmin = roleRepository.findById("ROLE_ADMIN").orElseThrow(() -> new NullPointerException("ROLE_ADMIN 권한이 없습니다."));
 

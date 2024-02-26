@@ -13,9 +13,10 @@ public interface RoleRepository extends JpaRepository<Role, String> {
     @Query("""
         SELECT role
         FROM Role role
-        LEFT OUTER JOIN FETCH role.childRole
+        LEFT OUTER JOIN FETCH role.parentRole parentRole
+        LEFT OUTER JOIN FETCH role.childRole childRole
     """)
-    List<Role> findAllWithChildren();
+    List<Role> findAllWithParentAndChildren();
 
     @Query("""
         SELECT role
