@@ -1,9 +1,11 @@
 spring:
   jpa:
+    hibernate:
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
-        ddl-auto: create
+        show_sql: true
         format_sql: true
     defer-datasource-initialization: true
     open-in-view: false
@@ -14,6 +16,7 @@ spring:
       path: /h2-console
 
   datasource:
+    driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:testdb
     username: sa
 
