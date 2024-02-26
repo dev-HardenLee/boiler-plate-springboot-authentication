@@ -5,14 +5,14 @@ import org.example.springbootauthentication.domain.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.example.springbootauthentication.creator.RoleCreator.creat;
+import static org.example.springbootauthentication.creator.RoleCreator.create;
 
-@DataJpaTest
+@SpringBootTest
 @Log4j2
 class RoleRepositoryTest {
 
@@ -34,7 +34,7 @@ class RoleRepositoryTest {
     void addRole() {
         // given
         Role roleAdmin = roleRepository.findById("ROLE_ADMIN").orElse(null);
-        Role roleTest  = creat("ROLE_TEST", "테스트 권한");
+        Role roleTest  = create("ROLE_TEST", "테스트 권한");
 
         roleTest.makeRelationship(roleAdmin);
 
