@@ -33,7 +33,7 @@ class RoleRepositoryTest {
     @DisplayName("addRole() : 권한 추가와 부모 권한과의 연관관계 매핑에 성공한다.")
     void addRole() {
         // given
-        Role roleAdmin = roleRepository.findById("ROLE_ADMIN").orElse(null);
+        Role roleAdmin = roleRepository.findByIdWithParentAndChildren("ROLE_ADMIN").orElse(null);
         Role roleTest  = create("ROLE_TEST", "테스트 권한");
 
         roleTest.makeRelationship(roleAdmin);
@@ -47,6 +47,7 @@ class RoleRepositoryTest {
         assertThat(roleTest.getRole()).isEqualTo(findRole.getRole());
         assertThat(findRole.getParentRole().getRole()).isEqualTo(roleAdmin.getRole());
 
+        roleRepository.deleteById(roleTest.getRole());
     }// addRole
 
 }// RoleRepositoryTest
